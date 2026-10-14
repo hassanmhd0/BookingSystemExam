@@ -16,7 +16,6 @@ public class BookingService(IBookingRepository repository)
     public IReadOnlyList<Booking> GetActiveBookings()
     {
         // This method has not been completed.
-        //
         return repository.GetAll()
     .       Where(booking => !booking.IsCancelled)
     .       ToList();
@@ -25,10 +24,12 @@ public class BookingService(IBookingRepository repository)
     public IReadOnlyList<Booking> Search(string searchTerm)
     {
         return repository.GetAll()
-            .Where(booking =>
-                !booking.IsCancelled &&
-                booking.CustomerName.Contains(searchTerm))
-            .ToList();
+        .Where(booking =>
+            !booking.IsCancelled &&
+            // Ignorerar stora och små bokstäver vid sökning
+            booking.CustomerName.Contains(
+                searchTerm, StringComparison.OrdinalIgnoreCase))
+        .ToList();
     }
 
     public BookingResult Create(Booking booking)
@@ -110,6 +111,8 @@ public class BookingService(IBookingRepository repository)
             existing.RoomName.Equals(booking.RoomName, StringComparison.OrdinalIgnoreCase) &&
 
             // Kontrollerar om den nya bokningen överlappar en befintlig bokning
+            // Förhindrar dubbelbokning av samma rum
+
             booking.StartTime > existing.StartTime &&
             booking.StartTime < existing.EndTime);
 
