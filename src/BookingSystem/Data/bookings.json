@@ -1,0 +1,32 @@
+[
+  {
+    "Id": 1042,
+    "CustomerName": "Avanoria AB",
+    "RoomName": "Aspen",
+    "Date": "2026-10-15",
+    "StartTime": "09:00:00",
+    "EndTime": "11:00:00",
+    "Participants": 4,
+    "IsCancelled": false
+  },
+  {
+    "Id": 1043,
+    "CustomerName": "Nackademin AB",
+    "RoomName": "Birken",
+    "Date": "2026-10-16",
+    "StartTime": "13:00:00",
+    "EndTime": "15:00:00",
+    "Participants": 6,
+    "IsCancelled": false
+  },
+  {
+    "Id": 1044,
+    "CustomerName": "Mattin-Lassei Group AB",
+    "RoomName": "Eken",
+    "Date": "2026-10-14",
+    "StartTime": "10:00:00",
+    "EndTime": "12:00:00",
+    "Participants": 10,
+    "IsCancelled": true
+  }
+]
