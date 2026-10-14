@@ -1,0 +1,38 @@
+# Felsökningsrapport – Bokningssystem
+
+## 1. Vilket fel undersökte du?
+Jag undersökte ett fel i bokningssystemet där två bokningar kunde överlappa varandra i samma mötesrum. Programmet skulle förhindra dubbelbokningar, men vissa överlappande tider godkändes ändå.
+
+## 2. Hur återskapade du felet?
+Jag utgick från ett exempel där mötesrummet Aspen redan var bokat mellan 09:00 och 11:00. Sedan undersökte jag vad som händer om en användare försöker boka samma rum mellan 08:00 och 10:00. Den nya bokningen börjar tidigare men överlappar den befintliga.
+
+## 3. Vilket resultat fick du?
+Den ursprungliga koden kunde godkänna bokningen trots att rummet redan var upptaget mellan 09:00 och 10:00. Det innebar att två kunder kunde få samma mötesrum under samma tid.
+
+## 4. Vilket resultat skulle du ha fått?
+Programmet skulle neka bokningen och visa felmeddelandet "The room is already booked during the selected time." Däremot ska en bokning mellan 11:00 och 12:00 tillåtas eftersom den inte överlappar.
+
+## 5. Vilken del av koden orsakade felet?
+Felet fanns i `BookingService.cs`, i metoden `Validate()`. Problemet låg i kontrollen `hasOverlap`, där programmet jämförde den nya bokningens starttid med den befintliga bokningens tider.
+
+## 6. Varför gav koden ett felaktigt resultat?
+Den gamla koden kontrollerade bara om den nya bokningens starttid låg inom en befintlig bokning. Om den nya bokningen började tidigare kunde programmet missa överlappningen.
+
+## 7. Vad ändrade du?
+Jag ändrade tidskontrollen till:
+
+```csharp
+// Kontrollerar om den nya bokningen överlappar en befintlig bokning
+booking.StartTime < existing.EndTime &&
+booking.EndTime > existing.StartTime);
+```
+
+Nu jämför programmet både starttid och sluttid för att upptäcka överlappningar.
+
+## 8. Hur kontrollerade du att ändringen fungerade?
+För att verifiera ändringen behöver jag köra bokningssystemet med en befintlig bokning mellan 09:00 och 11:00. Jag ska kontrollera att 08:00–10:00, 10:00–12:00 och 08:00–12:00 nekas, medan 11:00–12:00 tillåts. När testerna har körts dokumenterar jag resultatet.
+
+## 9. Vilket automatiserat test skyddar mot att felet återkommer?
+Ett automatiserat test i `BookingServiceTests.cs` bör skapa en befintlig bokning och sedan försöka skapa en överlappande bokning. Testet ska kontrollera att `Create()` returnerar ett misslyckat resultat. Ett separat test bör kontrollera att bokningar utan överlappning godkänns.
+
+Dessa tester hjälper till att upptäcka om samma fel uppstår igen vid framtida kodändringar.
