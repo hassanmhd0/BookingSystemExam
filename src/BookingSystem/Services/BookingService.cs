@@ -87,7 +87,8 @@ public class BookingService(IBookingRepository repository)
         {
             return BookingResult.Failure("The selected room does not exist.");
         }
-
+        // Kontrollerar att starttiden är tidigare än sluttiden
+        // Om starttiden är senare eller lika med sluttiden då kommer det att vara en ogiltig bokning
         if (booking.StartTime >= booking.EndTime)
         {
             return BookingResult.Failure("The start time must be earlier than the end time.");
