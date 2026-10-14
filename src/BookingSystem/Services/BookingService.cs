@@ -16,7 +16,10 @@ public class BookingService(IBookingRepository repository)
     public IReadOnlyList<Booking> GetActiveBookings()
     {
         // This method has not been completed.
-        return repository.GetAll();
+        //
+        return repository.GetAll()
+    .       Where(booking => !booking.IsCancelled)
+    .       ToList();
     }
 
     public IReadOnlyList<Booking> Search(string searchTerm)
@@ -46,8 +49,32 @@ public class BookingService(IBookingRepository repository)
 
     public BookingResult Cancel(int bookingId)
     {
-        throw new NotImplementedException();
+      
+        // Hitta bokningen med rätt ID
+        var booking = repository.GetAll()
+            .FirstOrDefault(b => b.Id == bookingId);
+
+        // Kontrollera om bokningen finns
+        if (booking == null)
+        {
+            return BookingResult.Failure("No bookings were found.");
+        }
+
+        // Kontrollera om den redan är avbokad
+        if (booking.IsCancelled)
+        {
+            return BookingResult.Failure("Already cancelled.");
+        }
+
+        // Avboka bokningen
+        booking.IsCancelled = true;
+
+        // Spara ändringen
+        repository.Save();
+
+        return BookingResult.Success("Booking cancelled.");
     }
+    
 
     private BookingResult Validate(Booking booking)
     {
@@ -61,7 +88,7 @@ public class BookingService(IBookingRepository repository)
             return BookingResult.Failure("The selected room does not exist.");
         }
 
-        if (booking.StartTime == booking.EndTime)
+        if (booking.StartTime >= booking.EndTime)
         {
             return BookingResult.Failure("The start time must be earlier than the end time.");
         }
@@ -80,7 +107,9 @@ public class BookingService(IBookingRepository repository)
             !existing.IsCancelled &&
             existing.Date == booking.Date &&
             existing.RoomName.Equals(booking.RoomName, StringComparison.OrdinalIgnoreCase) &&
-            booking.StartTime >= existing.StartTime &&
+
+            // Kontrollerar om den nya bokningen överlappar en befintlig bokning
+            booking.StartTime > existing.StartTime &&
             booking.StartTime < existing.EndTime);
 
         if (hasOverlap)
